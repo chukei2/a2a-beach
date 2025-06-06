@@ -1,7 +1,7 @@
 from typing import Any, List
 
 import logging
-from agent import BeachAgent
+from .agent import BeachAgent
 
 from typing_extensions import override
 
