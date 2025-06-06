@@ -22,18 +22,11 @@ logger = logging.getLogger(__name__)
 class BeachAgentExecutor(AgentExecutor):
     """BeachAgentExecutor that uses an agent with preloaded tools."""
 
-    def __init__(self, mcp_tools: List[Any]):
-        """
-        Initializes the BeachAgentExecutor.
-
-        Args:
-            mcp_tools: A list of preloaded MCP tools for the BeachAgent.
-        """
+    def __init__(self):
+        """Initializes the BeachAgentExecutor."""
         super().__init__()
-        logger.info(
-            f"Initializing BeachAgentExecutor with {len(mcp_tools) if mcp_tools else 'no'} MCP tools."
-        )
-        self.agent = BeachAgent(mcp_tools=mcp_tools)
+        logger.info("Initializing BeachAgentExecutor with Gemini-based agent.")
+        self.agent = BeachAgent()
 
     @override
     async def execute(
