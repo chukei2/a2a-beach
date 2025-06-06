@@ -123,7 +123,7 @@ class RoutingAgent:
             instruction=self.root_instruction,
             before_model_callback=self.before_model_callback,
             description=(
-                "This Routing agent orchestrates the decomposition of the user asking for weather forecast or airbnb accommodation"
+                "This Routing agent orchestrates the decomposition of the user asking for weather forecasts or assistance from the beach search agent"
             ),
             tools=[
                 self.send_message,
