@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncIterable
 from typing import Any, Literal
 
-import httpx
+# import httpx # Removed as it's no longer used
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel
 
@@ -29,34 +29,60 @@ class BeachAgent:
     SUPPORTED_CONTENT_TYPES = ["text", "text/plain"]
 
     def __init__(self) -> None:
-        logger.info("Initializing BeachAgent using Gemini for internet search ...")
-        self.model = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17")
+        logger.info(
+            "Initializing BeachAgent using Gemini for internet search ..."
+        )
+        self.model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash-preview-04-17"
+        )
 
     async def _search_web(self, query: str) -> str:
-        """Retrieve information from the internet using DuckDuckGo."""
+        """Retrieve information from the internet using Gemini."""
+        logger.info(
+            f"Performing web search using Gemini for query: '{query}'"
+        )
         try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                resp = await client.get(
-                    "https://api.duckduckgo.com/",
-                    params={"q": query, "format": "json", "no_redirect": 1},
+            # Prompt for Gemini to perform a web search and summarize findings
+            search_prompt = (
+                f"You are acting as a web search engine. "
+                f"Please find information on the web about "
+                f"the following query: '{query}'.\n"
+                f"Provide a comprehensive summary of the relevant "
+                f"information you find. "
+                f"Focus on facts and details that would be helpful "
+                f"for answering questions about the query."
+            )
+            # Use the existing Gemini model to get search-like results
+            ai_msg = await self.model.ainvoke(search_prompt)
+
+            if ai_msg.content and isinstance(ai_msg.content, str):
+                logger.info(
+                    f"Gemini search returned content of length: "
+                    f"{len(ai_msg.content)}"
                 )
-                resp.raise_for_status()
-                data = resp.json()
-            snippets = []
-            if data.get("AbstractText"):
-                snippets.append(data["AbstractText"])
-            for topic in data.get("RelatedTopics", [])[:3]:
-                if isinstance(topic, dict) and topic.get("Text"):
-                    snippets.append(topic["Text"])
-            return "\n".join(snippets)
-        except Exception as exc:  # pragma: no cover - network errors
-            logger.error(f"Web search failed: {exc}")
+                return ai_msg.content
+            else:
+                logger.warning(
+                    "Gemini search returned no content or content in an "
+                    "unexpected format."
+                )
+                return ""  # Return empty string if no usable content
+        except Exception as exc:  # pragma: no cover - network or API errors
+            logger.error(f"Gemini-based web search failed: {exc}")
+            # Return empty string on failure
             return ""
 
     async def ainvoke(self, query: str, sessionId: str) -> dict[str, Any]:
-        logger.info(f"BeachAgent.ainvoke called with query: '{query}', sessionId: '{sessionId}'")
+        logger.info(
+            f"BeachAgent.ainvoke called with query: '{query}', "
+            f"sessionId: '{sessionId}'"
+        )
         web_results = await self._search_web(query)
-        prompt = f"{self.SYSTEM_INSTRUCTION}\nWeb results:\n{web_results}\nAnswer the question: {query}"
+        prompt = (
+            f"{self.SYSTEM_INSTRUCTION}\n"
+            f"Web results:\n{web_results}\n"
+            f"Answer the question: {query}"
+        )
         try:
             ai_msg = await self.model.ainvoke(prompt)
             return {
@@ -73,9 +99,16 @@ class BeachAgent:
             }
 
     async def stream(self, query: str, sessionId: str) -> AsyncIterable[Any]:
-        logger.info(f"BeachAgent.stream called with query: '{query}', sessionId: '{sessionId}'")
+        logger.info(
+            f"BeachAgent.stream called with query: '{query}', "
+            f"sessionId: '{sessionId}'"
+        )
         web_results = await self._search_web(query)
-        prompt = f"{self.SYSTEM_INSTRUCTION}\nWeb results:\n{web_results}\nAnswer the question: {query}"
+        prompt = (
+            f"{self.SYSTEM_INSTRUCTION}\n"
+            f"Web results:\n{web_results}\n"
+            f"Answer the question: {query}"
+        )
         try:
             async for chunk in self.model.astream(prompt):
                 if chunk.content:
