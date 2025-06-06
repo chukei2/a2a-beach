@@ -7,8 +7,8 @@ from contextlib import asynccontextmanager
 import click
 import uvicorn
 
-from agent import BeachAgent  # Renamed from BeachAgent
-from agent_executor import BeachAgentExecutor  # Renamed from BeachAgentExecutor
+from .agent import BeachAgent  # Renamed from BeachAgent
+from .agent_executor import BeachAgentExecutor  # Renamed from BeachAgentExecutor
 from dotenv import load_dotenv
 
 from a2a.server.apps import A2AStarletteApplication
