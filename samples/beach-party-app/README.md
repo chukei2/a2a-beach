@@ -44,6 +44,22 @@ AIR_AGENT_URL=http://localhost:10002
 WEA_AGENT_URL=http://localhost:10001
 ```
 
+## Quick Start
+
+Use the `main.py` CLI to launch the agents.
+
+Start only the host agent:
+
+```bash
+uv run main.py host
+```
+
+Start all agents (weather, beach and host) at once:
+
+```bash
+uv run main.py all
+```
+
 
 
 ## 1. Run Airbnb server
