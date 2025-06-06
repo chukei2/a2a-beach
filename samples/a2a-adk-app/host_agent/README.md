@@ -1,4 +1,4 @@
-# An example host agent frond end
+# An example host agent front end
 
 - Start the server
     ```bash
