@@ -20,6 +20,7 @@ from a2a.types import (
 )
 from a2a.server.tasks import InMemoryTaskStore
 from langchain_mcp_adapters.client import MultiServerMCPClient
+from langchain_core.tools import tool
 
 load_dotenv(override=True)
 
@@ -31,6 +32,48 @@ SERVER_CONFIGS = {
     },
 }
 
+# Fallback data for local beach search when MCP tools are unavailable
+LOCAL_BEACHES = [
+    {
+        "name": "Bondi Beach",
+        "location": "Sydney, Australia",
+        "features": "surfing, amenities, family friendly",
+    },
+    {
+        "name": "Waikiki Beach",
+        "location": "Honolulu, Hawaii",
+        "features": "resort area, gentle waves",
+    },
+    {
+        "name": "Santa Monica Beach",
+        "location": "California, USA",
+        "features": "pier, boardwalk, great for sunset",
+    },
+]
+
+
+@tool
+def local_beach_search(query: str) -> str:
+    """Fallback beach search implemented locally.
+
+    Args:
+        query: Free form search string describing the desired beach or location.
+
+    Returns:
+        Textual description of matching beaches from a small local dataset.
+    """
+    query_lower = query.lower()
+    matches = [
+        b
+        for b in LOCAL_BEACHES
+        if query_lower in f"{b['name']} {b['location']} {b['features']}".lower()
+    ]
+    if not matches:
+        return "No local beach information found for your query."
+    return "\n".join(
+        f"{b['name']} ({b['location']}) - {b['features']}" for b in matches
+    )
+
 app_context: Dict[str, Any] = {}
 
 
@@ -41,22 +84,35 @@ async def app_lifespan(context: Dict[str, Any]):
 
     # This variable will hold the MultiServerMCPClient instance
     mcp_client_instance: MultiServerMCPClient | None = None
+    mcp_tools: List[Any] = []
 
     try:
-        # Following Option 1 from the error message for MultiServerMCPClient initialization:
-        # 1. client = MultiServerMCPClient(...)
         mcp_client_instance = MultiServerMCPClient(SERVER_CONFIGS)
         mcp_tools = await mcp_client_instance.get_tools()
-        context["mcp_tools"] = mcp_tools
-
-        tool_count = len(mcp_tools) if mcp_tools else 0
-        print(f"Lifespan: MCP Tools preloaded successfully ({tool_count} tools found).")
-        yield  # Application runs here
+        if not mcp_tools:
+            raise ValueError("No MCP tools returned")
+        context["using_fallback_tools"] = False
+        print(
+            f"Lifespan: MCP Tools preloaded successfully ({len(mcp_tools)} tools found)."
+        )
     except Exception as e:
-        print(f"Lifespan: Error during initialization: {e}", file=sys.stderr)
-        # If an exception occurs, mcp_client_instance might exist and need cleanup.
-        # The finally block below will handle this.
-        raise
+        print(
+            f"Lifespan: Failed to load MCP tools: {e}. Falling back to local search.",
+            file=sys.stderr,
+        )
+        if mcp_client_instance and hasattr(mcp_client_instance, "__aexit__"):
+            try:
+                await mcp_client_instance.__aexit__(None, None, None)
+            except Exception:
+                pass
+        mcp_client_instance = None
+        mcp_tools = [local_beach_search]
+        context["using_fallback_tools"] = True
+
+    context["mcp_tools"] = mcp_tools
+
+    try:
+        yield  # Application runs here
     finally:
         print("Lifespan: Shutting down MCP client...")
         if (
@@ -110,13 +166,12 @@ def cli_main(host: str, port: int, log_level: str):
 
     async def run_server_async():
         async with app_lifespan(app_context):
-            if not app_context.get("mcp_tools"):
+            if app_context.get("using_fallback_tools"):
                 print(
-                    "Warning: MCP tools were not loaded. Agent may not function correctly.",
+                    "Warning: MCP tools unavailable. Using local beach search tool.",
                     file=sys.stderr,
                 )
-                # Depending on requirements, you could sys.exit(1) here
-
+            
             # Initialize BeachAgentExecutor with preloaded tools # Updated comment
             beach_agent_executor = BeachAgentExecutor(  # Renamed variable
                 mcp_tools=app_context.get("mcp_tools", [])
