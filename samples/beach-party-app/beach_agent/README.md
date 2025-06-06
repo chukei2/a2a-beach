@@ -1,12 +1,12 @@
-# Airbnb Agent - LangGraphベースのAIエージェント
+# Beach Agent - LangGraphベースのAIエージェント
 
 ## 概要
 
-AirbnbAgentは、Airbnb宿泊施設の検索と関連する質問に特化したAIエージェントです。LangGraphとGoogle GenerativeAI（Gemini）を使用して構築されており、MCPツールを活用してAirbnb物件の検索機能を提供します。
+BeachAgentは、Beach宿泊施設の検索と関連する質問に特化したAIエージェントです。LangGraphとGoogle GenerativeAI（Gemini）を使用して構築されており、MCPツールを活用してBeach物件の検索機能を提供します。
 
 ## 主な機能
 
-- **Airbnb物件検索**: MCPツールを使用した宿泊施設の検索
+- **Beach物件検索**: MCPツールを使用した宿泊施設の検索
 - **対話型応答**: ユーザーとの自然な会話形式での情報提供
 - **ストリーミング対応**: リアルタイムでの応答生成
 - **セッション管理**: メモリ機能による会話履歴の保持
@@ -16,7 +16,7 @@ AirbnbAgentは、Airbnb宿泊施設の検索と関連する質問に特化した
 
 ### コアコンポーネント
 
-#### 1. `AirbnbAgent`クラス
+#### 1. `BeachAgent`クラス
 - **役割**: メインのエージェントクラス
 - **機能**: 
   - Google Gemini 2.5 Flash PreviewモデルとのインターフェースMCP
@@ -40,7 +40,7 @@ class ResponseFormat(BaseModel):
 #### エージェントの動作フロー
 1. **初期化**: MCPツールとGeminiモデルの設定
 2. **クエリ受信**: ユーザーからの検索リクエスト
-3. **ツール実行**: MCPツールを使用したAirbnb API呼び出し
+3. **ツール実行**: MCPツールを使用したBeach API呼び出し
 4. **応答生成**: 構造化された形式での結果返却
 
 #### メモリ管理
@@ -55,7 +55,7 @@ class ResponseFormat(BaseModel):
 **非同期でクエリを実行し、完全な応答を返す**
 
 **パラメータ:**
-- `query`: 検索クエリ（例：「東京のAirbnb物件を探して」）
+- `query`: 検索クエリ（例：「東京のBeach物件を探して」）
 - `sessionId`: セッション識別子
 
 **戻り値:**
@@ -110,13 +110,13 @@ class ResponseFormat(BaseModel):
 
 #### 基本的な使用方法
 ```python
-from airbnb_agent.agent import AirbnbAgent
+from airbnb_agent.agent import BeachAgent
 
 # MCPツールの設定（実際の実装に応じて）
-mcp_tools = [...]  # Airbnb検索ツール
+mcp_tools = [...]  # Beach検索ツール
 
 # エージェント初期化
-agent = AirbnbAgent(mcp_tools=mcp_tools)
+agent = BeachAgent(mcp_tools=mcp_tools)
 
 # 同期呼び出し
 response = await agent.ainvoke(
@@ -130,7 +130,7 @@ print(response["content"])
 #### ストリーミング使用例
 ```python
 async for chunk in agent.stream(
-    query="渋谷近くのAirbnb物件を教えて",
+    query="渋谷近くのBeach物件を教えて",
     sessionId="user_session_123"
 ):
     print(chunk["content"])
@@ -140,7 +140,7 @@ async for chunk in agent.stream(
 
 ### システム指示（SYSTEM_INSTRUCTION）
 エージェントは以下の指示で動作します：
-- Airbnb宿泊施設専門のアシスタント
+- Beach宿泊施設専門のアシスタント
 - 提供されたツールのみを使用
 - 物件情報や価格の捏造禁止
 - Markdown形式での応答
@@ -163,7 +163,7 @@ async for chunk in agent.stream(
 {
     "is_task_complete": True,
     "require_user_input": False,
-    "content": "申し訳ございませんが、現在Airbnb検索ツールが利用できません。後ほど再試行してください。"
+    "content": "申し訳ございませんが、現在Beach検索ツールが利用できません。後ほど再試行してください。"
 }
 ```
 

@@ -1,7 +1,7 @@
 from typing import Any, List
 
 import logging
-from agent import AirbnbAgent
+from agent import BeachAgent
 
 from typing_extensions import override
 
@@ -19,21 +19,21 @@ from uuid import uuid4
 logger = logging.getLogger(__name__)
 
 
-class AirbnbAgentExecutor(AgentExecutor):
-    """AirbnbAgentExecutor that uses an agent with preloaded tools."""
+class BeachAgentExecutor(AgentExecutor):
+    """BeachAgentExecutor that uses an agent with preloaded tools."""
 
     def __init__(self, mcp_tools: List[Any]):
         """
-        Initializes the AirbnbAgentExecutor.
+        Initializes the BeachAgentExecutor.
 
         Args:
-            mcp_tools: A list of preloaded MCP tools for the AirbnbAgent.
+            mcp_tools: A list of preloaded MCP tools for the BeachAgent.
         """
         super().__init__()
         logger.info(
-            f"Initializing AirbnbAgentExecutor with {len(mcp_tools) if mcp_tools else 'no'} MCP tools."
+            f"Initializing BeachAgentExecutor with {len(mcp_tools) if mcp_tools else 'no'} MCP tools."
         )
-        self.agent = AirbnbAgent(mcp_tools=mcp_tools)
+        self.agent = BeachAgent(mcp_tools=mcp_tools)
 
     @override
     async def execute(
