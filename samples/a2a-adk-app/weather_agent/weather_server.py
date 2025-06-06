@@ -217,6 +217,61 @@ async def get_forecast_by_city(city: str, state: str) -> str:
     return await get_forecast(latitude, longitude)
 
 
+@mcp.tool()
+async def get_global_forecast(city: str, country: str) -> str:
+    """Get a simple forecast for a city in any country using Open-Meteo."""
+    if not city or not isinstance(city, str):
+        return "Invalid city name provided."
+    if not country or not isinstance(country, str):
+        return "Invalid country name provided."
+
+    query = f"{city.strip()}, {country.strip()}"
+    try:
+        location = geolocator.geocode(query, timeout=GEOCODE_TIMEOUT)
+    except GeocoderTimedOut:
+        return f"Could not get coordinates for '{query}': The location service timed out."
+    except GeocoderServiceError:
+        return f"Could not get coordinates for '{query}': The location service returned an error."
+    except Exception:
+        return f"An unexpected error occurred while finding coordinates for '{query}'."
+
+    if location is None:
+        return f"Could not find coordinates for '{query}'."
+
+    latitude = location.latitude
+    longitude = location.longitude
+    url = (
+        "https://api.open-meteo.com/v1/forecast?"
+        f"latitude={latitude:.4f}&longitude={longitude:.4f}&"
+        "daily=temperature_2m_max,temperature_2m_min&timezone=auto"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+    except httpx.HTTPError:
+        return f"Failed to retrieve weather data for {query}."
+    except json.JSONDecodeError:
+        return "Weather service returned invalid data."
+    except Exception:
+        return "An unexpected error occurred while retrieving the forecast."
+
+    daily = data.get("daily")
+    if not daily:
+        return "Weather data unavailable."
+    times = daily.get("time", [])
+    maxes = daily.get("temperature_2m_max", [])
+    mins = daily.get("temperature_2m_min", [])
+
+    forecasts = []
+    for day, hi, lo in zip(times[:3], maxes[:3], mins[:3]):
+        forecasts.append(f"{day}: High {hi}°C, Low {lo}°C")
+
+    return "\n".join(forecasts)
+
+
 # --- Server Execution & Shutdown ---
 async def shutdown_event():
     """Gracefully close the httpx client."""

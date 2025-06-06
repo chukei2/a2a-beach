@@ -14,4 +14,6 @@ This example shows how to create an A2A Server that uses an ADK-based Agent.
 
    ```bash
    uv run .
+
+The weather agent can now provide forecasts for cities worldwide using Open-Meteo in addition to US-only data.
    ```
