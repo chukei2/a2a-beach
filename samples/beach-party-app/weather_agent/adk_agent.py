@@ -13,7 +13,7 @@ def create_agent() -> LlmAgent:
             MCPToolset(
                 connection_params=StdioServerParameters(
                     command="python",
-                    args=["./weather_server.py"],
+                    args=["./weather_agent/weather_server.py"],
                 ),
             )
         ],
