@@ -46,14 +46,14 @@ def main(host: str, port: int):
     skill = AgentSkill(
         id="weather_search",
         name="Search weather",
-        description="Helps with weather in city, or states",
+        description="Helps with weather in US states or any country",
         tags=["weather"],
         examples=["weather in LA, CA"],
     )
 
     agent_card = AgentCard(
         name="Weather Agent",
-        description="Helps with weather",
+        description="Provides local weather information worldwide",
         url=f"http://{host}:{port}/",
         version="1.0.0",
         defaultInputModes=["text"],
