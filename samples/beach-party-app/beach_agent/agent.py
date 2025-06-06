@@ -28,7 +28,7 @@ class ResponseFormat(BaseModel):
     message: str
 
 
-class BeachAgent:  # Renamed from AirbnbAgent
+class BeachAgent:  # Renamed from BeachAgent
     """Beach Search Agent Example."""  # Updated docstring
 
     SYSTEM_INSTRUCTION = """You are a specialized assistant for beach information. Your primary function is to utilize the provided tools to search for beaches and answer related questions. You must rely exclusively on these tools for information; do not invent beach details or conditions. Ensure that your Markdown-formatted response includes all relevant tool output, with particular emphasis on providing accurate information.""" # Updated instruction

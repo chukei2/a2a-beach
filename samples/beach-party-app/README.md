@@ -9,7 +9,7 @@ This document describes a web application demonstrating the integration of Googl
 
 ### Architecture
 
-The application utilizes a multi-agent architecture where a host agent delegates tasks to remote agents (Airbnb and Weather) based on the user's query. These agents then interact with corresponding MCP servers.
+The application utilizes a multi-agent architecture where a host agent delegates tasks to remote agents (Beach and Weather) based on the user's query. These agents then interact with corresponding MCP servers.
 
 ![architecture](assets/A2A_multi_agent.png)
 
@@ -23,7 +23,7 @@ The application utilizes a multi-agent architecture where a host agent delegates
 
 Before running the application locally, ensure you have the following installed:
 
-1. **Node.js:** Required to run the Airbnb MCP server (if testing its functionality locally).
+1. **Node.js:** Required to run the Beach MCP server (if testing its functionality locally).
 2. **uv:** The Python package management tool used in this project. Follow the installation guide: [https://docs.astral.sh/uv/getting-started/installation/](https://docs.astral.sh/uv/getting-started/installation/)
 3. **python 3.13** Python 3.13 is required to run a2a-sdk 
 4. **set up .env** 
@@ -62,7 +62,7 @@ uv run main.py all
 
 
 
-## 1. Run Airbnb server
+## 1. Run Beach server
 
 Run Remote server
 
