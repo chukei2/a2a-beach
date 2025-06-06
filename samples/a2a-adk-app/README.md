@@ -40,7 +40,7 @@ GOOGLE_API_KEY="your_api_key_here"
 GOOGLE_GENAI_USE_VERTEXAI=TRUE
 GOOGLE_CLOUD_PROJECT="your project"
 GOOGLE_CLOUD_LOCATION=us-central1
-AIR_AGENT_URL=http://localhost:10002
+BEACH_AGENT_URL=http://localhost:10002
 WEA_AGENT_URL=http://localhost:10001
 ```
 
