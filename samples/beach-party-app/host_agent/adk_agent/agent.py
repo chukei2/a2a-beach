@@ -283,6 +283,7 @@ def _get_initialized_routing_agent_sync():
             remote_agent_addresses=[
                 os.getenv("BEACH_AGENT_URL", "http://localhost:10002"),
                 os.getenv("WEA_AGENT_URL", "http://localhost:10001"),
+                os.getenv("PLANNER_AGENT_URL", "http://localhost:10003"),
             ]
         )
         return routing_agent_instance.create_agent()

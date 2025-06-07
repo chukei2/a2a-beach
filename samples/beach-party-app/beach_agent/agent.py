@@ -44,13 +44,12 @@ class BeachAgent:
         try:
             # Prompt for Gemini to perform a web search and summarize findings
             search_prompt = (
-                f"You are acting as a web search engine. "
-                f"Please find information on the web about "
-                f"the following query: '{query}'.\n"
-                f"Provide a comprehensive summary of the relevant "
-                f"information you find. "
-                f"Focus on facts and details that would be helpful "
-                f"for answering questions about the query."
+                f"""
+あなたは、優秀なビーチ情報アシスタントです。以下のクエリに基づいて、インターネットを検索し、関連する情報を収集してください。
+クエリ: {query}
+あなたの回答は、ビーチに関する情報を提供することに焦点を当ててください。
+あまり熟考せず、迅速に検索結果をまとめてください。
+                """
             )
             # Use the existing Gemini model to get search-like results
             ai_msg = await self.model.ainvoke(search_prompt)
